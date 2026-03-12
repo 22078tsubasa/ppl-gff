@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import base64
 import io
 import zipfile
 from datetime import datetime
@@ -178,36 +179,60 @@ def render_overview() -> None:
     )
 
 
+def render_zoomable_image(title: str, path: Path, key_prefix: str) -> None:
+    st.subheader(title)
+    if not file_ok(path):
+        st.warning(f"{title} が見つかりません。")
+        return
+
+    c1, c2 = st.columns([1, 1])
+    with c1:
+        zoom_pct = st.slider("拡大率(%)", 80, 400, 140, 10, key=f"{key_prefix}_zoom")
+    with c2:
+        viewport_h = st.slider("表示枠の高さ(px)", 300, 1400, 760, 20, key=f"{key_prefix}_height")
+
+    image_b64 = base64.b64encode(path.read_bytes()).decode("utf-8")
+    st.markdown(
+        f"""
+        <div style="
+            overflow: auto;
+            max-height: {viewport_h}px;
+            border: 1px solid #aacb98;
+            border-radius: 10px;
+            background: white;
+            box-shadow: inset 0 0 0 1px #e8f2e0;
+            padding: 8px;
+        ">
+            <img src="data:image/png;base64,{image_b64}"
+                 style="width: {zoom_pct}%; max-width: none; height: auto;" />
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+    st.caption("拡大率を上げると高解像度のまま細部を確認できます。ドラッグ/スクロールで移動してください。")
+    st.download_button(
+        label=f"{title}（原寸PNG）をダウンロード",
+        data=path.read_bytes(),
+        file_name=path.name,
+        mime="image/png",
+        key=f"{key_prefix}_png_dl",
+    )
+
+
 def render_map_tab() -> None:
     left, right = st.columns(2)
     with left:
-        st.subheader("全体勢力図")
-        if file_ok(IMAGE_FILES["全体勢力図"]):
-            st.image(str(IMAGE_FILES["全体勢力図"]), use_container_width=True)
-        else:
-            st.warning("全体勢力図が見つかりません。")
+        render_zoomable_image("全体勢力図", IMAGE_FILES["全体勢力図"], "map_all")
     with right:
-        st.subheader("都祁診療所+上位5勢力図")
-        if file_ok(IMAGE_FILES["都祁診療所+上位5勢力図"]):
-            st.image(str(IMAGE_FILES["都祁診療所+上位5勢力図"]), use_container_width=True)
-        else:
-            st.warning("都祁診療所+上位5勢力図が見つかりません。")
+        render_zoomable_image("都祁診療所+上位5勢力図", IMAGE_FILES["都祁診療所+上位5勢力図"], "map_plus5")
 
 
 def render_heatmap_tab() -> None:
     left, right = st.columns(2)
     with left:
-        st.subheader("上位3マトリクス")
-        if file_ok(IMAGE_FILES["上位3マトリクス図"]):
-            st.image(str(IMAGE_FILES["上位3マトリクス図"]), use_container_width=True)
-        else:
-            st.warning("上位3マトリクス図が見つかりません。")
+        render_zoomable_image("上位3マトリクス", IMAGE_FILES["上位3マトリクス図"], "heat_top3")
     with right:
-        st.subheader("上位10ヒートマップ")
-        if file_ok(IMAGE_FILES["上位10ヒートマップ図"]):
-            st.image(str(IMAGE_FILES["上位10ヒートマップ図"]), use_container_width=True)
-        else:
-            st.warning("上位10ヒートマップ図が見つかりません。")
+        render_zoomable_image("上位10ヒートマップ", IMAGE_FILES["上位10ヒートマップ図"], "heat_top10")
 
 
 def render_data_tab() -> None:
@@ -272,7 +297,6 @@ def render_share_tab() -> None:
 st.set_page_config(page_title="都祁診療所競合分析", layout="wide")
 inject_style()
 render_header()
-render_overview()
 
 missing = [name for name, p in {**IMAGE_FILES, **CSV_FILES}.items() if not file_ok(p)]
 if missing:
