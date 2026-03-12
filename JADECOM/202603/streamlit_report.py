@@ -111,21 +111,6 @@ def inject_style() -> None:
             font-size: 1rem;
             opacity: 0.95;
         }}
-        .icon-row {{
-            display: grid;
-            grid-template-columns: repeat(4, minmax(100px, 1fr));
-            gap: 0.6rem;
-            margin-top: 0.9rem;
-        }}
-        .icon-chip {{
-            background: rgba(255,255,255,0.18);
-            border: 1px solid rgba(255,255,255,0.28);
-            border-radius: 12px;
-            text-align: center;
-            padding: 0.5rem 0.4rem;
-            font-size: 0.84rem;
-            backdrop-filter: blur(3px);
-        }}
         .leaf-banner {{
             margin-top: 0.8rem;
             color: #2e5f2e;
@@ -152,12 +137,6 @@ def render_header() -> None:
         <div class="hero-card">
           <div class="hero-title">都祁診療所競合分析</div>
           <div class="hero-sub">地域医療振興協会 共同研究 / 町丁目別勢力図・需要ヒートマップ</div>
-          <div class="icon-row">
-            <div class="icon-chip">診療圏分析</div>
-            <div class="icon-chip">競合比較</div>
-            <div class="icon-chip">需要可視化</div>
-            <div class="icon-chip">資料共有</div>
-          </div>
         </div>
         <div class="leaf-banner">Leaf Theme / Nara Tsuge Clinic Research</div>
         """,
@@ -227,12 +206,12 @@ def render_map_tab() -> None:
         render_zoomable_image("都祁診療所+上位5勢力図", IMAGE_FILES["都祁診療所+上位5勢力図"], "map_plus5")
 
 
+def render_matrix_tab() -> None:
+    render_zoomable_image("上位3マトリクス", IMAGE_FILES["上位3マトリクス図"], "matrix_top3")
+
+
 def render_heatmap_tab() -> None:
-    left, right = st.columns(2)
-    with left:
-        render_zoomable_image("上位3マトリクス", IMAGE_FILES["上位3マトリクス図"], "heat_top3")
-    with right:
-        render_zoomable_image("上位10ヒートマップ", IMAGE_FILES["上位10ヒートマップ図"], "heat_top10")
+    render_zoomable_image("上位10ヒートマップ", IMAGE_FILES["上位10ヒートマップ図"], "heat_top10")
 
 
 def render_data_tab() -> None:
@@ -302,15 +281,18 @@ missing = [name for name, p in {**IMAGE_FILES, **CSV_FILES}.items() if not file_
 if missing:
     st.warning("不足ファイル: " + " / ".join(missing))
 
-c1, c2, c3 = st.columns(3)
+c1, c2, c3, c4 = st.columns(4)
 c1.metric("勢力図", "2種")
-c2.metric("ヒートマップ", "2種")
-c3.metric("更新日", datetime.now().strftime("%Y-%m-%d"))
+c2.metric("マトリクス", "1種")
+c3.metric("ヒートマップ", "1種")
+c4.metric("更新日", datetime.now().strftime("%Y-%m-%d"))
 
-map_tab, heat_tab, data_tab, share_tab = st.tabs(["勢力図", "ヒートマップ", "データ", "共有・更新"])
+map_tab, matrix_tab, heat_tab, data_tab, share_tab = st.tabs(["勢力図", "マトリクス", "ヒートマップ", "データ", "共有・更新"])
 
 with map_tab:
     render_map_tab()
+with matrix_tab:
+    render_matrix_tab()
 with heat_tab:
     render_heatmap_tab()
 with data_tab:
