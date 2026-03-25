@@ -23,6 +23,14 @@
    - Main file path: `JADECOM/202603/streamlit_report.py`
 4. `Deploy` を押す
 
+### 閲覧パスワード
+- このアプリは閲覧時にパスワード入力が必要（デフォルト: `shibaura2026`）
+- 変更したい場合は Streamlit Cloud の `Settings > Secrets` で設定
+
+```toml
+APP_PASSWORD = "任意のパスワード"
+```
+
 ## 4. 先方共有
 - デプロイ後に発行される `https://xxxx.streamlit.app` を先方へ送る
 - このURLは `localhost` と違って、先方PCからも見られる

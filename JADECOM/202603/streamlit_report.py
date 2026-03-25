@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import base64
+import hmac
 import io
+import os
 import zipfile
 from datetime import datetime
 from pathlib import Path
@@ -37,6 +39,8 @@ PALETTE = {
     "text": "#1f2d1f",
 }
 
+DEFAULT_PASSWORD = "shibaura2026"
+
 
 def file_ok(path: Path) -> bool:
     return path.exists() and path.is_file()
@@ -59,6 +63,29 @@ def build_zip_bytes() -> bytes:
                 zf.write(p, arcname=p.name)
     memory.seek(0)
     return memory.read()
+
+
+def get_expected_password() -> str:
+    if "APP_PASSWORD" in st.secrets:
+        return str(st.secrets["APP_PASSWORD"])
+    return os.getenv("APP_PASSWORD", DEFAULT_PASSWORD)
+
+
+def require_password() -> None:
+    expected = get_expected_password()
+    if st.session_state.get("authed", False):
+        return
+
+    st.title("都祁診療所競合分析（閲覧認証）")
+    st.caption("閲覧にはパスワードが必要です")
+    pw = st.text_input("パスワード", type="password")
+    if st.button("ログイン"):
+        if hmac.compare_digest(pw, expected):
+            st.session_state["authed"] = True
+            st.rerun()
+        else:
+            st.error("パスワードが違います。")
+    st.stop()
 
 
 def inject_style() -> None:
@@ -238,6 +265,7 @@ def render_download_tab() -> None:
 
 
 st.set_page_config(page_title="都祁診療所競合分析", layout="wide")
+require_password()
 inject_style()
 render_header()
 
