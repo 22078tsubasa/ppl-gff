@@ -229,6 +229,7 @@ def render_data_tab() -> None:
         if flag_cols:
             selected_df = selected_df.drop(columns=flag_cols)
         selected_df.columns = [str(c).replace("患者", "利用者") for c in selected_df.columns]
+        selected_df.columns = [str(c).replace("施設名_実データ列", "施設名") for c in selected_df.columns]
         st.subheader("対象施設（利用者数TOP60・全件 / 自動車30分圏全体ベース）")
         st.dataframe(selected_df, use_container_width=True, hide_index=True)
 
