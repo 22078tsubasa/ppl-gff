@@ -2,10 +2,7 @@ from __future__ import annotations
 
 import base64
 import hmac
-import io
 import os
-import zipfile
-from datetime import datetime
 from pathlib import Path
 
 import pandas as pd
@@ -52,19 +49,6 @@ def read_csv_safely(path: Path) -> pd.DataFrame:
     if not file_ok(path):
         return pd.DataFrame()
     return pd.read_csv(path)
-
-
-def build_zip_bytes() -> bytes:
-    memory = io.BytesIO()
-    with zipfile.ZipFile(memory, "w", compression=zipfile.ZIP_DEFLATED) as zf:
-        for _, p in IMAGE_FILES.items():
-            if file_ok(p):
-                zf.write(p, arcname=p.name)
-        for _, p in CSV_FILES.items():
-            if file_ok(p):
-                zf.write(p, arcname=p.name)
-    memory.seek(0)
-    return memory.read()
 
 
 def get_expected_password() -> str:
@@ -167,11 +151,22 @@ def render_zoomable_image(title: str, path: Path, key_prefix: str) -> None:
         st.warning(f"{title} が見つかりません。")
         return
 
-    c1, c2 = st.columns([1, 1])
+    zoom_key = f"{key_prefix}_zoom"
+    if zoom_key not in st.session_state:
+        st.session_state[zoom_key] = 140
+
+    c1, c2, c3 = st.columns([1, 1, 8])
     with c1:
-        zoom_pct = st.slider("拡大率(%)", 80, 400, 140, 10, key=f"{key_prefix}_zoom")
+        if st.button("−", key=f"{key_prefix}_minus"):
+            st.session_state[zoom_key] = max(80, int(st.session_state[zoom_key]) - 10)
     with c2:
-        viewport_h = st.slider("表示枠の高さ(px)", 300, 1400, 760, 20, key=f"{key_prefix}_height")
+        if st.button("+", key=f"{key_prefix}_plus"):
+            st.session_state[zoom_key] = min(400, int(st.session_state[zoom_key]) + 10)
+    with c3:
+        st.caption(f"拡大率: {st.session_state[zoom_key]}%（+ / − で調整）")
+
+    zoom_pct = int(st.session_state[zoom_key])
+    viewport_h = 760
 
     image_b64 = base64.b64encode(path.read_bytes()).decode("utf-8")
     st.markdown(
@@ -225,24 +220,25 @@ def render_data_tab() -> None:
         st.dataframe(selected_df.head(20), use_container_width=True, hide_index=True)
 
 
-def render_download_tab() -> None:
-    st.subheader("ダウンロード")
-    for label, path in {**IMAGE_FILES, **CSV_FILES}.items():
-        if file_ok(path):
-            st.download_button(
-                label=f"{label} をダウンロード",
-                data=path.read_bytes(),
-                file_name=path.name,
-                mime="application/octet-stream",
-                key=f"dl_{path.name}",
-            )
-
-    zip_bytes = build_zip_bytes()
-    st.download_button(
-        label="資料一式 ZIP をダウンロード",
-        data=zip_bytes,
-        file_name="sasa_report_bundle.zip",
-        mime="application/zip",
+def render_usage_tab() -> None:
+    st.subheader("使い方")
+    st.markdown(
+        "- 画面上部の `+ / −` ボタンで拡大率を調整できます\n"
+        "- 画像はスクロール可能です（表示枠高さは固定）\n"
+        "- `データ確認` タブでランキング・対象施設の表を確認できます"
+    )
+    st.subheader("可視化の説明")
+    st.markdown(
+        "- `勢力図`：町丁目ごとに最も利用者数が多い医療機関を表示\n"
+        "- `ヒートマップ`：町丁目×医療機関（上位10）を色で可視化\n"
+        "- `マトリクス`：町丁目ごとの上位3医療機関を強調表示\n"
+        "- `グラフ`：近い順上位60町丁目の積み上げ棒グラフ"
+    )
+    st.subheader("データ確認の表の説明")
+    st.markdown(
+        "- `施設ランキング`：分析対象内で利用者数が多い順の一覧\n"
+        "- `対象施設（利用者数TOP60）`：勢力図や行列計算に使用した医療機関一覧\n"
+        "- 用語：このアプリでは `患者数` と `利用者数` は同義（人数）"
     )
 
 
@@ -255,16 +251,12 @@ missing = [name for name, p in {**IMAGE_FILES, **CSV_FILES}.items() if not file_
 if missing:
     st.warning("不足ファイル: " + " / ".join(missing))
 
-c1, c2, c3, c4 = st.columns(4)
-c1.metric("勢力図", "2種")
-c2.metric("ヒートマップ", "1種")
-c3.metric("マトリクス", "1種")
-c4.metric("更新日", datetime.now().strftime("%Y-%m-%d"))
-
-map_tab, heat_tab, matrix_tab, graph_tab, data_tab, dl_tab = st.tabs(
-    ["勢力図", "ヒートマップ", "マトリクス", "グラフ", "データ確認", "ダウンロード"]
+usage_tab, map_tab, heat_tab, matrix_tab, graph_tab, data_tab = st.tabs(
+    ["使い方", "勢力図", "ヒートマップ", "マトリクス", "グラフ", "データ確認"]
 )
 
+with usage_tab:
+    render_usage_tab()
 with map_tab:
     render_map_tab()
 with heat_tab:
@@ -275,5 +267,3 @@ with graph_tab:
     render_graph_tab()
 with data_tab:
     render_data_tab()
-with dl_tab:
-    render_download_tab()
