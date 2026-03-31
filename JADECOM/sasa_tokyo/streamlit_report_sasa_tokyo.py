@@ -211,13 +211,13 @@ def render_graph_tab() -> None:
 def render_data_tab() -> None:
     rank_df = read_csv_safely(CSV_FILES["施設ランキングCSV"])
     if not rank_df.empty:
-        st.subheader("施設ランキング（上位20）")
-        st.dataframe(rank_df.head(20), use_container_width=True, hide_index=True)
+        st.subheader("施設ランキング（全件）")
+        st.dataframe(rank_df, use_container_width=True, hide_index=True)
 
     selected_df = read_csv_safely(CSV_FILES["選定施設CSV"])
     if not selected_df.empty:
-        st.subheader("対象施設（利用者数TOP60）")
-        st.dataframe(selected_df.head(20), use_container_width=True, hide_index=True)
+        st.subheader("対象施設（利用者数TOP60・全件）")
+        st.dataframe(selected_df, use_container_width=True, hide_index=True)
 
 
 def render_usage_tab() -> None:
