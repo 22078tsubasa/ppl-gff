@@ -219,6 +219,7 @@ def render_data_tab() -> None:
         flag_cols = [c for c in rank_df.columns if ("フラグ" in str(c)) or ("flag" in str(c).lower())]
         if flag_cols:
             rank_df = rank_df.drop(columns=flag_cols)
+        rank_df.columns = [str(c).replace("患者", "利用者") for c in rank_df.columns]
         st.subheader("施設ランキング（全件 / 佐々総合病院から近い60町丁目ベース）")
         st.dataframe(rank_df, use_container_width=True, hide_index=True)
 
@@ -227,6 +228,7 @@ def render_data_tab() -> None:
         flag_cols = [c for c in selected_df.columns if ("フラグ" in str(c)) or ("flag" in str(c).lower())]
         if flag_cols:
             selected_df = selected_df.drop(columns=flag_cols)
+        selected_df.columns = [str(c).replace("患者", "利用者") for c in selected_df.columns]
         st.subheader("対象施設（利用者数TOP60・全件 / 自動車30分圏全体ベース）")
         st.dataframe(selected_df, use_container_width=True, hide_index=True)
 
@@ -257,7 +259,6 @@ def render_usage_tab() -> None:
     st.markdown(
         "- `施設ランキング`：佐々総合病院から近い60町丁目での人数合計ランキング\n"
         "- `対象施設（利用者数TOP60）`：自動車30分圏全体を母集団に選定した医療機関一覧\n"
-        "- 用語：本アプリでは人数の単位を `利用者数` に統一\n"
         "- 注意：2表は集計範囲が異なるため、数値は一致しない場合があります"
     )
 
