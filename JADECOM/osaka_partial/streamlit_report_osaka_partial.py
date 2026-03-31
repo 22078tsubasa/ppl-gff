@@ -209,26 +209,35 @@ def render_graph_tab() -> None:
 
 
 def render_data_tab() -> None:
-    st.subheader("用語と集計範囲")
     st.info(
-        "この画面では『患者数』と『利用者数』は同じ意味（人数）です。"
-        "表ごとに集計対象が異なるため、数値は一致しないことがあります。"
+        "このタブの2表は集計範囲が異なります。"
+        "施設ランキングは「大阪赤十字病院から近い60町丁目」ベース、"
+        "対象施設TOP60は「自動車30分圏全体」ベースです。"
     )
     st.markdown(
-        "- 一部抜粋60町丁目: 大阪赤十字病院からの距離（dist_km）が近い順の上位60町丁目\n"
-        "- 施設ランキング: 一部抜粋（表示用の上位60町丁目）内での合計人数\n"
-        "- 対象施設（利用者数TOP60）: 大阪赤十字病院30分圏の全対象町丁目で選定した施設一覧"
+        "- 一部抜粋60町丁目: 大阪赤十字病院からの距離（dist_km）が近い順の60町丁目\n"
+        "- 施設ランキング: 一部抜粋60町丁目での合計利用者数\n"
+        "- 対象施設（利用者数TOP60）: 自動車30分圏全体を母集団に選定した医療機関一覧"
     )
 
     rank_df = read_csv_safely(CSV_FILES["施設ランキングCSV"])
     if not rank_df.empty:
-        st.subheader("施設ランキング（上位20 / 一部抜粋60町丁目ベース）")
-        st.dataframe(rank_df.head(20), use_container_width=True, hide_index=True)
+        flag_cols = [c for c in rank_df.columns if ("フラグ" in str(c)) or ("flag" in str(c).lower())]
+        if flag_cols:
+            rank_df = rank_df.drop(columns=flag_cols)
+        rank_df.columns = [str(c).replace("患者", "利用者") for c in rank_df.columns]
+        st.subheader("施設ランキング（全件 / 大阪赤十字病院から近い60町丁目ベース）")
+        st.dataframe(rank_df, use_container_width=True, hide_index=True)
 
     selected_df = read_csv_safely(CSV_FILES["選定施設CSV"])
     if not selected_df.empty:
-        st.subheader("対象施設（利用者数TOP60 / 30分圏全町丁目ベース）")
-        st.dataframe(selected_df.head(20), use_container_width=True, hide_index=True)
+        flag_cols = [c for c in selected_df.columns if ("フラグ" in str(c)) or ("flag" in str(c).lower())]
+        if flag_cols:
+            selected_df = selected_df.drop(columns=flag_cols)
+        selected_df.columns = [str(c).replace("患者", "利用者") for c in selected_df.columns]
+        selected_df.columns = [str(c).replace("施設名_実データ列", "施設名") for c in selected_df.columns]
+        st.subheader("対象施設（利用者数TOP60・全件 / 自動車30分圏全体ベース）")
+        st.dataframe(selected_df, use_container_width=True, hide_index=True)
 
 
 def render_usage_tab() -> None:
@@ -238,20 +247,26 @@ def render_usage_tab() -> None:
         "- 画像はスクロール可能です（表示枠高さは固定）\n"
         "- `データ確認` タブでランキング・対象施設の表を確認できます"
     )
+    st.subheader("分析範囲の前提")
+    st.markdown(
+        "- 分析母集団: 大阪赤十字病院の自動車30分圏内の対象町丁目（全体）\n"
+        "- 可視化（ヒートマップ/マトリクス/グラフ）の表示対象: 大阪赤十字病院から距離が近い順の60町丁目\n"
+        "- 施設選定: 利用者数TOP60施設"
+    )
     st.subheader("可視化の説明")
     st.markdown(
         "- `勢力図`：町丁目ごとに最も利用者数が多い医療機関を表示\n"
         "- `ヒートマップ`：町丁目×医療機関（上位10）を色で可視化\n"
-        "- `マトリクス`：各町丁目で患者数が多い医療機関上位3つの人数を表示。"
+        "- `マトリクス`：各町丁目で利用者数が多い医療機関上位3つの人数を表示。"
         "上位3に頻出する医療機関の上位3施設は色付きで強調（それ以外の上位3は灰色表示）\n"
-        "- `グラフ`：大阪赤十字病院からの距離が近い順の上位60町丁目について、"
+        "- `グラフ`：大阪赤十字病院からの距離が近い順の60町丁目について、"
         "町丁目ごとの医療機関利用人数を積み上げ棒で表示"
     )
     st.subheader("データ確認の表の説明")
     st.markdown(
-        "- `施設ランキング`：分析対象内で利用者数が多い順の一覧\n"
-        "- `対象施設（利用者数TOP60）`：勢力図や行列計算に使用した医療機関一覧\n"
-        "- 用語：このアプリでは `患者数` と `利用者数` は同義（人数）"
+        "- `施設ランキング`：大阪赤十字病院から近い60町丁目での人数合計ランキング\n"
+        "- `対象施設（利用者数TOP60）`：自動車30分圏全体を母集団に選定した医療機関一覧\n"
+        "- 注意：2表は集計範囲が異なるため、数値は一致しない場合があります"
     )
 
 
