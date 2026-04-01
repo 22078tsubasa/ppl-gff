@@ -212,12 +212,12 @@ def render_data_tab() -> None:
     st.info(
         "このタブの2表は集計範囲が異なります。"
         "施設ランキングは「大阪赤十字病院から近い60町丁目」ベース、"
-        "対象施設TOP60は「自動車30分圏全体」ベースです。"
+        "対象施設TOP60は「自動車20分圏全体」ベースです。"
     )
     st.markdown(
         "- 一部抜粋60町丁目: 大阪赤十字病院からの距離（dist_km）が近い順の60町丁目\n"
         "- 施設ランキング: 一部抜粋60町丁目での合計利用者数\n"
-        "- 対象施設（利用者数TOP60）: 自動車30分圏全体を母集団に選定した医療機関一覧"
+        "- 対象施設（利用者数TOP60）: 自動車20分圏全体を母集団に選定した医療機関一覧"
     )
 
     rank_df = read_csv_safely(CSV_FILES["施設ランキングCSV"])
@@ -236,7 +236,7 @@ def render_data_tab() -> None:
             selected_df = selected_df.drop(columns=flag_cols)
         selected_df.columns = [str(c).replace("患者", "利用者") for c in selected_df.columns]
         selected_df.columns = [str(c).replace("施設名_実データ列", "施設名") for c in selected_df.columns]
-        st.subheader("対象施設（利用者数TOP60・全件 / 自動車30分圏全体ベース）")
+        st.subheader("対象施設（利用者数TOP60・全件 / 自動車20分圏全体ベース）")
         st.dataframe(selected_df, use_container_width=True, hide_index=True)
 
 
@@ -249,7 +249,7 @@ def render_usage_tab() -> None:
     )
     st.subheader("分析範囲の前提")
     st.markdown(
-        "- 分析母集団: 大阪赤十字病院の自動車30分圏内の対象町丁目（全体）\n"
+        "- 分析母集団: 大阪赤十字病院の自動車20分圏内の対象町丁目（全体）\n"
         "- 可視化（ヒートマップ/マトリクス/グラフ）の表示対象: 大阪赤十字病院から距離が近い順の60町丁目\n"
         "- 施設選定: 利用者数TOP60施設"
     )
@@ -265,7 +265,7 @@ def render_usage_tab() -> None:
     st.subheader("データ確認の表の説明")
     st.markdown(
         "- `施設ランキング`：大阪赤十字病院から近い60町丁目での人数合計ランキング\n"
-        "- `対象施設（利用者数TOP60）`：自動車30分圏全体を母集団に選定した医療機関一覧"
+        "- `対象施設（利用者数TOP60）`：自動車20分圏全体を母集団に選定した医療機関一覧"
     )
 
 
