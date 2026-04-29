@@ -210,7 +210,7 @@ def render_header_panel() -> None:
     st.markdown(
         """
         <div class="hero-card">
-          <div class="hero-title">佐々総合病院競合分析</div>
+          <div class="hero-title">佐々総合病院競合分析（消化器外科）</div>
           <div class="hero-sub">町丁目別勢力図・ヒートマップ・マトリクス・グラフ</div>
         </div>
         """,
