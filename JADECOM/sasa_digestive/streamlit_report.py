@@ -31,12 +31,12 @@ CSV_FILES = {
 }
 
 PALETTE = {
-    "bg": "#eef5ea",
-    "main": "#70AD47",
-    "deep": "#2f6b2f",
-    "light": "#cfe8bf",
-    "accent": "#9BC53D",
-    "text": "#1f2d1f",
+    "bg": "#eef5fb",
+    "main": "#4A90E2",
+    "deep": "#1F4E79",
+    "light": "#cfe1f7",
+    "accent": "#76A9E0",
+    "text": "#1b2b3a",
 }
 
 DEFAULT_PASSWORD = "shibaura2026"
@@ -88,9 +88,9 @@ def inject_style() -> None:
         <style>
         .stApp {{
             background:
-              radial-gradient(circle at 8% 10%, #dcefcf 0%, transparent 30%),
-              radial-gradient(circle at 88% 18%, #d2e9c0 0%, transparent 28%),
-              linear-gradient(180deg, {PALETTE['bg']} 0%, #f7fbf4 100%);
+              radial-gradient(circle at 8% 10%, #dbeaf8 0%, transparent 30%),
+              radial-gradient(circle at 88% 18%, #c9dff6 0%, transparent 28%),
+              linear-gradient(180deg, {PALETTE['bg']} 0%, #f7fbff 100%);
             color: {PALETTE['text']};
         }}
         .hero-card {{
@@ -192,10 +192,10 @@ def render_zoomable_image(title: str, path: Path, key_prefix: str) -> None:
         <div style="
             overflow: auto;
             height: {IMAGE_VIEWPORT_HEIGHT}px;
-            border: 1px solid #aacb98;
+            border: 1px solid #9bbbe3;
             border-radius: 10px;
             background: white;
-            box-shadow: inset 0 0 0 1px #e8f2e0;
+            box-shadow: inset 0 0 0 1px #e4eef9;
             padding: 8px;
         ">
             <img src="data:image/png;base64,{image_b64}"
