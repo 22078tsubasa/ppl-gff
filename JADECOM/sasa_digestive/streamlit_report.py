@@ -16,8 +16,10 @@ IMAGE_FILES = {
     "全体勢力図": BASE_DIR / "dominant_territory_sasa_car30_usersTop60_allLegend.png",
     "佐々総合病院+上位5勢力図": BASE_DIR / "dominant_territory_sasa_car30_sasaPlus5_other_allLegend.png",
     "上位10ヒートマップ図": BASE_DIR / "sasa_car30_usersTop60_town_med_heatmap_上位10_町丁目60.png",
+    "獲得患者割合ヒートマップ図": BASE_DIR / "佐々総合病院_消化器外科_町丁目別_獲得患者割合ヒートマップ.png",
     "上位3マトリクス図": BASE_DIR / "sasa_car30_usersTop60_town_med_matrix_上位3_町丁目60.png",
     "グラフ": BASE_DIR / "town_med_graph_top60.png",
+    "散布図": BASE_DIR / "佐々総合病院_消化器外科_距離別_獲得患者割合_散布図.png",
 }
 
 CSV_FILES = {
@@ -28,6 +30,7 @@ CSV_FILES = {
     "施設ランキングCSV": BASE_DIR / "sasa_car30_usersTop60_facility_rank_summary.csv",
     "選定施設CSV": BASE_DIR / "sasa_car30_usersTop60_selected_facilities.csv",
     "佐々+上位5選定施設CSV": BASE_DIR / "sasa_car30_sasaPlus5_selected_facilities.csv",
+    "散布図データCSV": BASE_DIR / "佐々総合病院_消化器外科_距離別_獲得患者割合_散布図データ.csv",
 }
 
 PALETTE = {
@@ -143,7 +146,7 @@ def render_header() -> None:
         """
         <div class="hero-card">
           <div class="hero-title">佐々総合病院　競合分析（消化器外科）</div>
-          <div class="hero-sub">町丁目別勢力図・ヒートマップ・マトリクス・グラフ</div>
+          <div class="hero-sub">町丁目別勢力図・ヒートマップ・マトリクス・グラフ・散布図</div>
         </div>
         """,
         unsafe_allow_html=True,
@@ -211,7 +214,7 @@ def render_header_panel() -> None:
         """
         <div class="hero-card">
           <div class="hero-title">佐々総合病院競合分析（消化器外科）</div>
-          <div class="hero-sub">町丁目別勢力図・ヒートマップ・マトリクス・グラフ</div>
+          <div class="hero-sub">町丁目別勢力図・ヒートマップ・マトリクス・グラフ・散布図</div>
         </div>
         """,
         unsafe_allow_html=True,
@@ -228,6 +231,7 @@ def render_map_tab() -> None:
 
 def render_heatmap_tab() -> None:
     render_zoomable_image("上位10ヒートマップ", IMAGE_FILES["上位10ヒートマップ図"], "heat_top10")
+    render_zoomable_image("佐々総合病院 獲得患者割合ヒートマップ", IMAGE_FILES["獲得患者割合ヒートマップ図"], "heat_share")
 
 
 def render_matrix_tab() -> None:
@@ -236,6 +240,10 @@ def render_matrix_tab() -> None:
 
 def render_graph_tab() -> None:
     render_zoomable_image("グラフ", IMAGE_FILES["グラフ"], "graph_top60")
+
+
+def render_scatter_tab() -> None:
+    render_zoomable_image("距離と獲得患者割合の関係", IMAGE_FILES["散布図"], "scatter_share")
 
 
 def render_help_tab() -> None:
@@ -254,9 +262,10 @@ def render_help_tab() -> None:
         """
         - `勢力図`: 町丁目ごとに、どの医療機関の利用者数が相対的に強いかを色分けして見ます。
         - `佐々総合病院+上位5勢力図`: 佐々総合病院と競合上位5施設に絞って、競争関係を簡潔に確認します。
-        - `ヒートマップ`: 町丁目と主要医療機関の組み合わせを濃淡で見て、利用が強い地点を把握します。
+        - `ヒートマップ`: 町丁目と主要医療機関の組み合わせ、または佐々総合病院の獲得患者割合を濃淡で見て、利用が強い地点を把握します。
         - `マトリクス`: 上位施設に絞った比較図です。行と列を見比べることで、どの町丁目でどの施設の利用が強いかを確認します。
         - `グラフ`: 距離の近い順上位60町丁目での積み上げ表示です。
+        - `散布図`: 佐々総合病院からの距離と獲得患者割合の関係を確認します。点の大きさは町丁目内の全医療機関患者数、色は佐々総合病院の患者数を示します。
         - `データ確認`: 画面内で主要なCSV内容を表として確認します。
         """
     )
@@ -270,6 +279,7 @@ def render_help_tab() -> None:
         - `上位3マトリクスCSV`: 主要3施設に絞った比較用の行列データです。
         - `施設ランキングCSV`: 表示用に抽出した町丁目範囲内での施設別合計人数です。
         - `選定施設CSV`: 30分圏全体をもとに可視化対象として選定した施設一覧です。
+        - `散布図データCSV`: 距離と佐々総合病院の獲得患者割合を町丁目単位で整理したデータです。
         """
     )
 
@@ -324,8 +334,8 @@ missing = [name for name, p in {**IMAGE_FILES, **CSV_FILES}.items() if not file_
 if missing:
     st.warning("不足ファイル: " + " / ".join(missing))
 
-help_tab, map_tab, heat_tab, matrix_tab, graph_tab, data_tab = st.tabs(
-    ["使い方", "勢力図", "ヒートマップ", "マトリクス", "グラフ", "データ確認"]
+help_tab, map_tab, heat_tab, matrix_tab, graph_tab, scatter_tab, data_tab = st.tabs(
+    ["使い方", "勢力図", "ヒートマップ", "マトリクス", "グラフ", "散布図", "データ確認"]
 )
 
 with help_tab:
@@ -338,5 +348,7 @@ with matrix_tab:
     render_matrix_tab()
 with graph_tab:
     render_graph_tab()
+with scatter_tab:
+    render_scatter_tab()
 with data_tab:
     render_data_tab()
