@@ -148,7 +148,7 @@ def render_header() -> None:
         """
         <div class="hero-card">
           <div class="hero-title">佐々総合病院　競合分析（消化器外科）</div>
-          <div class="hero-sub">町丁目別勢力図・ヒートマップ・マトリクス・グラフ・散布図</div>
+          <div class="hero-sub">町丁目別勢力図・ヒートマップ・マトリクス・グラフ・獲得余地町丁目の可視化</div>
         </div>
         """,
         unsafe_allow_html=True,
@@ -216,7 +216,7 @@ def render_header_panel() -> None:
         """
         <div class="hero-card">
           <div class="hero-title">佐々総合病院競合分析（消化器外科）</div>
-          <div class="hero-sub">町丁目別勢力図・ヒートマップ・マトリクス・グラフ・散布図</div>
+          <div class="hero-sub">町丁目別勢力図・ヒートマップ・マトリクス・グラフ・獲得余地町丁目の可視化</div>
         </div>
         """,
         unsafe_allow_html=True,
@@ -245,7 +245,7 @@ def render_graph_tab() -> None:
 
 
 def render_scatter_tab() -> None:
-    render_zoomable_image("距離と獲得患者割合の関係", IMAGE_FILES["散布図"], "scatter_share")
+    render_zoomable_image("獲得余地町丁目の分布（距離と獲得患者割合）", IMAGE_FILES["散布図"], "scatter_share")
     render_zoomable_image(
         "4km以内・獲得割合20%以下の町丁目（全80件）",
         IMAGE_FILES["4km以内低獲得割合町丁目表"],
@@ -272,7 +272,7 @@ def render_help_tab() -> None:
         - `ヒートマップ`: 町丁目と主要医療機関の組み合わせ、または佐々総合病院の獲得患者割合を濃淡で見て、利用が強い地点を把握します。
         - `マトリクス`: 上位施設に絞った比較図です。行と列を見比べることで、どの町丁目でどの施設の利用が強いかを確認します。
         - `グラフ`: 距離の近い順上位60町丁目での積み上げ表示です。
-        - `散布図`: 佐々総合病院からの距離と獲得患者割合の関係、および4km以内・獲得割合20%以下の町丁目一覧を確認します。点の大きさは町丁目内の全医療機関患者数、色は佐々総合病院の患者数を示します。
+        - `獲得余地町丁目の可視化`: 佐々総合病院から近い一方で獲得患者割合が低い町丁目を探します。散布図では距離と獲得患者割合の関係を見て、表では4km以内・獲得割合20%以下の町丁目を1位病院との距離差が小さい順に確認します。
         - `データ確認`: 画面内で主要なCSV内容を表として確認します。
         """
     )
@@ -343,7 +343,7 @@ if missing:
     st.warning("不足ファイル: " + " / ".join(missing))
 
 help_tab, map_tab, heat_tab, matrix_tab, graph_tab, scatter_tab, data_tab = st.tabs(
-    ["使い方", "勢力図", "ヒートマップ", "マトリクス", "グラフ", "散布図", "データ確認"]
+    ["使い方", "勢力図", "ヒートマップ", "マトリクス", "グラフ", "獲得余地町丁目の可視化", "データ確認"]
 )
 
 with help_tab:
