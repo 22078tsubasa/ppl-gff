@@ -20,6 +20,7 @@ IMAGE_FILES = {
     "上位3マトリクス図": BASE_DIR / "sasa_car30_usersTop60_town_med_matrix_上位3_町丁目60.png",
     "グラフ": BASE_DIR / "town_med_graph_top60.png",
     "散布図": BASE_DIR / "佐々総合病院_消化器外科_距離別_獲得患者割合_散布図.png",
+    "4km以内低獲得割合町丁目表": BASE_DIR / "佐々総合病院_消化器外科_4km以内かつ獲得割合20pct以下_町丁目80_表.png",
 }
 
 CSV_FILES = {
@@ -31,6 +32,7 @@ CSV_FILES = {
     "選定施設CSV": BASE_DIR / "sasa_car30_usersTop60_selected_facilities.csv",
     "佐々+上位5選定施設CSV": BASE_DIR / "sasa_car30_sasaPlus5_selected_facilities.csv",
     "散布図データCSV": BASE_DIR / "佐々総合病院_消化器外科_距離別_獲得患者割合_散布図データ.csv",
+    "4km以内低獲得割合町丁目CSV": BASE_DIR / "佐々総合病院_消化器外科_4km以内かつ獲得割合20pct以下_町丁目80.csv",
 }
 
 PALETTE = {
@@ -244,6 +246,11 @@ def render_graph_tab() -> None:
 
 def render_scatter_tab() -> None:
     render_zoomable_image("距離と獲得患者割合の関係", IMAGE_FILES["散布図"], "scatter_share")
+    render_zoomable_image(
+        "4km以内・獲得割合20%以下の町丁目（全80件）",
+        IMAGE_FILES["4km以内低獲得割合町丁目表"],
+        "scatter_low_share_table",
+    )
 
 
 def render_help_tab() -> None:
@@ -265,7 +272,7 @@ def render_help_tab() -> None:
         - `ヒートマップ`: 町丁目と主要医療機関の組み合わせ、または佐々総合病院の獲得患者割合を濃淡で見て、利用が強い地点を把握します。
         - `マトリクス`: 上位施設に絞った比較図です。行と列を見比べることで、どの町丁目でどの施設の利用が強いかを確認します。
         - `グラフ`: 距離の近い順上位60町丁目での積み上げ表示です。
-        - `散布図`: 佐々総合病院からの距離と獲得患者割合の関係を確認します。点の大きさは町丁目内の全医療機関患者数、色は佐々総合病院の患者数を示します。
+        - `散布図`: 佐々総合病院からの距離と獲得患者割合の関係、および4km以内・獲得割合20%以下の町丁目一覧を確認します。点の大きさは町丁目内の全医療機関患者数、色は佐々総合病院の患者数を示します。
         - `データ確認`: 画面内で主要なCSV内容を表として確認します。
         """
     )
@@ -280,6 +287,7 @@ def render_help_tab() -> None:
         - `施設ランキングCSV`: 表示用に抽出した町丁目範囲内での施設別合計人数です。
         - `選定施設CSV`: 30分圏全体をもとに可視化対象として選定した施設一覧です。
         - `散布図データCSV`: 距離と佐々総合病院の獲得患者割合を町丁目単位で整理したデータです。
+        - `4km以内低獲得割合町丁目CSV`: 佐々総合病院から4km以内かつ獲得割合20%以下の町丁目を、1位病院との距離差が小さい順に整理したデータです。
         """
     )
 
